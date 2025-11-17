@@ -1,0 +1,6 @@
+model = "qwen2.5-coder:0.5b"
+temperature = 0.0
+timeout_sec = 40
+max_tokens = 512
+mode = "fix"
+ollama_host = "http://localhost:11434"

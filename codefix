@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Check if running in a virtual environment
+if [[ "$VIRTUAL_ENV" != *"codefix-purple"* ]]; then
+    # Activate the virtual environment
+    source ~/codefix-purple/.venv/bin/activate
+fi
+
+# Run the application
+python3 ~/codefix-purple/codefix.py

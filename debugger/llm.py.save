@@ -1,0 +1,68 @@
+SSSimport subprocess
+import tomli
+import os
+import requests
+import json
+
+def _load_settings():
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "settings.toml"))
+    with open(path, "rb") as f:
+        return tomli.load(f)
+
+def ask_ollama(prompt: str) -> str:
+    cfg = _load_settings()
+    model = cfg.get("model", "qwen2.5Coder:0.5b")
+    timeout = int(cfg.get("timeout_sec", 40))
+    host = cfg.get("ollama_host", "http://localhost:11434")
+    
+    # Try API method first (more reliable)
+    try:
+        response = requests.post(
+            f"{host}/api/generate",
+            json={
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+                "options": {
+                    "temperature": cfg.get("temperature", 0.0),
+                    "num_predict": cfg.get("max_tokens", 512)
+                }
+            },
+            timeout=timeout
+        )
+        response.raise_for_status()
+        result = response.json()
+        return result.get("response", "").strip()
+    except requests.exceptions.RequestException:
+        # Fallback to subprocess method
+        cmd = ["ollama", "run", model]
+
+        proc = subprocess.run(
+            cmd,
+            input=prompt,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+        )
+
+        if proc.returncode != 0:
+            raise RuntimeError(f"Ollama error: {proc.stderr}")
+
+        out = proc.stdout or ""
+        out = out.replace("```python", "").replace("```diff", "")
+        out = out.replace("```", "")
+        return out.strip()
+
+def build_prompt(code: str, ast_data: dict, runtime_data: dict) -> str:
+    return (
+        "You are CODEFIX. Generate ONLY a unified diff patch.\n"
+        "No explanations. No comments. No markdown.\n\n"
+        "CODE:\n"
+        f"{code}\n\n"
+        "AST ANALYSIS:\n"
+        f"{ast_data}\n\n"
+        "RUNTIME ANALYSIS:\n"
+        f"{runtime_data}\n\n"
+        "Return ONLY unified diff patch:"
+    )
