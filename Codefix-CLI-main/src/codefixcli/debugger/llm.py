@@ -1,9 +1,12 @@
+"""
+LLM Integration Module for Codefix-CLI.
+Handles communication with Ollama and builds prompts for code fixing.
+"""
 import subprocess
 import tomli
 import os
-import requests
 import json
-
+import requests
 import sys
 
 def _load_settings():
