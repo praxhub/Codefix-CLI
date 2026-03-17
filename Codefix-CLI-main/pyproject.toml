@@ -32,6 +32,11 @@ dev = [
     "isort>=5.12.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/phravins/Codefix-CLI"
+Repository = "https://github.com/phravins/Codefix-CLI"
+Issues = "https://github.com/phravins/Codefix-CLI/issues"
+
 [project.scripts]
 codefix = "codefixcli.cli:main"
 codefixcli = "codefixcli.cli:main"
