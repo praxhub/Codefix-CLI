@@ -1,3 +1,7 @@
+"""
+AST Analysis Module for Codefix-CLI.
+Provides static analysis to detect common Python coding issues.
+"""
 import ast
 import sys
 
