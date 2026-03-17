@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codefixcli"
+version = "2.0.0"
+authors = [
+  { name = "phravins", email = "phravins@example.com" },
+]
+description = "AI-powered CLI for code analysis, fixing, and explanation"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "textual>=0.50.0",
+    "rich>=13.0.0",
+    "pyperclip>=1.8.0",
+    "requests>=2.28.0",
+    "tomli>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/phravins/Codefix-CLI"
+Repository = "https://github.com/phravins/Codefix-CLI"
+Issues = "https://github.com/phravins/Codefix-CLI/issues"
+
+[project.scripts]
+codefix = "codefixcli.cli:main"
+codefixcli = "codefixcli.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+codefixcli = ["*.toml"]
