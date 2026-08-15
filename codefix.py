@@ -5,6 +5,7 @@ from textual.widgets import Static, Button, TextArea, Footer, Select, Label
 from textual.containers import Vertical, Horizontal, ScrollableContainer
 from textual import work
 from rich.text import Text
+from rich.markup import escape
 import pyperclip
 import traceback
 import re
@@ -350,12 +351,12 @@ class CodeFixApp(App):
                 if issues:
                     for iss in issues:
                         ln = iss.get("lineno", "?")
-                        parts.append(f"  [yellow]⚠[/yellow] {iss['message']}  [dim](line {ln})[/dim]")
+                        parts.append(f"  [yellow]⚠[/yellow] {escape(iss['message'])}  [dim](line {ln})[/dim]")
                 else:
                     parts.append("  [green]✓ No issues found[/green]")
             else:
                 err = ast_res.get("syntax_error", {})
-                parts.append(f"  [red]✗ Syntax Error: {err.get('msg', 'Unknown')} (line {err.get('lineno', '?')})[/red]")
+                parts.append(f"  [red]✗ Syntax Error: {escape(err.get('msg', 'Unknown'))} (line {err.get('lineno', '?')})[/red]")
 
             # ── Complexity section ─────────────────────────────────────────────
             complexity = ast_res.get("complexity", {})
@@ -372,21 +373,21 @@ class CodeFixApp(App):
                 elapsed = run_res.get("elapsed", 0)
                 parts.append(f"  [green]✓ Return code: {run_res.get('returncode', 0)}[/green]  [dim]⏱ {elapsed}s[/dim]")
                 if run_res.get("stdout"):
-                    parts.append(f"  [dim]stdout:[/dim]\n{run_res['stdout'].strip()}")
+                    parts.append(f"  [dim]stdout:[/dim]\n{escape(run_res['stdout'].strip())}")
                 if run_res.get("stderr"):
-                    parts.append(f"  [red]stderr:\n{run_res['stderr'].strip()}[/red]")
+                    parts.append(f"  [red]stderr:\n{escape(run_res['stderr'].strip())}[/red]")
             else:
                 if run_res.get("timeout"):
                     parts.append("  [red]✗ Timeout during execution[/red]")
                 else:
-                    parts.append(f"  [red]✗ {run_res.get('error', 'Unknown error')}[/red]")
+                    parts.append(f"  [red]✗ {escape(run_res.get('error', 'Unknown error'))}[/red]")
 
             out = "\n".join(parts)
             self.call_from_thread(self._set_output, out)
             self.call_from_thread(self._set_status, "Analysis complete ✓")
 
         except Exception as e:
-            err_text = f"[red]Error:[/red]\n{e}\n\n{traceback.format_exc()}"
+            err_text = f"[red]Error:[/red]\n{escape(str(e))}\n\n{escape(traceback.format_exc())}"
             self.call_from_thread(self._set_output, err_text)
             self.call_from_thread(self._set_status, "Analysis failed")
 
@@ -425,14 +426,14 @@ class CodeFixApp(App):
             parts = [
                 "[bold #9370db]=== FIXED CODE ===[/bold #9370db]",
                 "",
-                fixed,
+                escape(fixed),
             ]
             out = "\n".join(parts)
             self.call_from_thread(self._set_output, out)
             self.call_from_thread(self._set_status, "Fix complete ✓")
 
         except Exception as e:
-            err_text = f"[red]Error:[/red]\n{e}\n\n{traceback.format_exc()}"
+            err_text = f"[red]Error:[/red]\n{escape(str(e))}\n\n{escape(traceback.format_exc())}"
             self.call_from_thread(self._set_output, err_text)
             self.call_from_thread(self._set_status, "Fix failed")
 
@@ -463,14 +464,14 @@ class CodeFixApp(App):
             parts = [
                 "[bold #9370db]=== CODE EXPLANATION ===[/bold #9370db]",
                 "",
-                explanation.strip(),
+                escape(explanation.strip()),
             ]
             out = "\n".join(parts)
             self.call_from_thread(self._set_output, out)
             self.call_from_thread(self._set_status, "Explanation complete ✓")
 
         except Exception as e:
-            err_text = f"[red]Error:[/red]\n{e}\n\n{traceback.format_exc()}"
+            err_text = f"[red]Error:[/red]\n{escape(str(e))}\n\n{escape(traceback.format_exc())}"
             self.call_from_thread(self._set_output, err_text)
             self.call_from_thread(self._set_status, "Explain failed")
 
