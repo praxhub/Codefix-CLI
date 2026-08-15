@@ -10,6 +10,7 @@ from textual.widgets import Static, Button, TextArea, Footer, Select, Label
 from textual.containers import Vertical, Horizontal, ScrollableContainer
 from textual import work
 from rich.text import Text
+from rich.markup import escape
 import pyperclip
 import traceback
 import re
@@ -360,11 +361,11 @@ class CodeFixApp(App):
             code = self.query_one("#input", TextArea).text
             ast_res  = scan(code)
             run_res  = run_in_sandbox(code)
-            out = f"[bold]=== ANALYSIS ===[/bold]\n\nAST: {ast_res}\n\nRuntime: {run_res}"
+            out = f"[bold]=== ANALYSIS ===[/bold]\n\nAST: {escape(str(ast_res))}\n\nRuntime: {escape(str(run_res))}"
             self.call_from_thread(self._set_output, out)
             self.call_from_thread(self._set_status, "Done ✓")
         except Exception as e:
-            self.call_from_thread(self._set_output, str(e))
+            self.call_from_thread(self._set_output, escape(str(e)))
 
     @work(thread=True)
     def run_fix(self):
@@ -372,10 +373,10 @@ class CodeFixApp(App):
         try:
             code = self.query_one("#input", TextArea).text
             llm_out = ask_ollama(build_prompt(code, scan(code), run_in_sandbox(code)))
-            self.call_from_thread(self._set_output, llm_out)
+            self.call_from_thread(self._set_output, escape(llm_out))
             self.call_from_thread(self._set_status, "Fixed ✓")
         except Exception as e:
-            self.call_from_thread(self._set_output, str(e))
+            self.call_from_thread(self._set_output, escape(str(e)))
 
     @work(thread=True)
     def run_explain(self):
@@ -383,10 +384,10 @@ class CodeFixApp(App):
         try:
             code = self.query_one("#input", TextArea).text
             llm_out = ask_ollama(f"Explain this code concisely:\n{code}")
-            self.call_from_thread(self._set_output, llm_out)
+            self.call_from_thread(self._set_output, escape(llm_out))
             self.call_from_thread(self._set_status, "Explained ✓")
         except Exception as e:
-            self.call_from_thread(self._set_output, str(e))
+            self.call_from_thread(self._set_output, escape(str(e)))
 
 def main():
     CodeFixApp().run()
